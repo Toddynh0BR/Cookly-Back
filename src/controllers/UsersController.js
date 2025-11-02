@@ -28,19 +28,18 @@ function checkUsefulTime(useFulTime) {
 class UsersController {
   async localLogin(request, response) {
     const { identifier, password, method } = request.body;
-    console.log(identifier, password, method);
-    
+
       const UserExist = method == 'name' ?
       await knex('users').where({ name: identifier }).first()
       :
       await knex('users').where({ email: identifier }).first()
       ;
 
-      if (!UserExist) throw new AppError('Usuário não encontrado', 404);
+      if (!UserExist) throw new AppError('Usuário não encontrado');
 
-      const passwordMatched = await compare(password, UserExist.password)
+      const passwordMatched = await compare(password, UserExist.password);
 
-      if (!passwordMatched) throw new AppError('Senha incorreta', 401);
+      if (!passwordMatched) throw new AppError('Senha incorreta');
 
       return response.status(202).json({ User: UserExist });
  
