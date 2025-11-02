@@ -35,11 +35,11 @@ class UsersController {
       await knex('users').where({ email: identifier }).first()
       ;
 
-      if (!UserExist) throw new AppError('Usuário não encontrado');
+      if (!UserExist) throw new AppError('Usuário não encontrado', 404);
 
       const passwordMatched = await compare(password, UserExist.password);
 
-      if (!passwordMatched) throw new AppError('Senha incorreta');
+      if (!passwordMatched) throw new AppError('Senha incorreta', 401);
 
       return response.status(202).json({ User: UserExist });
  
@@ -145,6 +145,7 @@ class UsersController {
 
       if (User) return response.json({ User: User, message: 'old' });
       else {
+        if (!level) return response.json({ message: 'OK'});
         const hashedPassword = await hash(password, 8);
 
         const [NewUser] = await knex('users')
@@ -153,7 +154,7 @@ class UsersController {
                                 email,
                                 password: hashedPassword,
                                 provider,
-                                provider_id: id_token,
+                                provider_id: sub,
                                 level,
                                 img: picture || null,
                                })
@@ -181,6 +182,7 @@ class UsersController {
 
       if (User) return response.json({ User: User, message: 'old' });
       else {
+        if (!level) return response.json({ message: 'OK'});
         const hashedPassword = await hash(password, 8);
 
         const [NewUser] = await knex('users')
@@ -189,7 +191,7 @@ class UsersController {
                                 email,
                                 password: hashedPassword,
                                 provider,
-                                provider_id: id_token,
+                                provider_id: id,
                                 level,
                                 img: picture || null,
                                })
