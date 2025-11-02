@@ -28,7 +28,8 @@ function checkUsefulTime(useFulTime) {
 class UsersController {
   async localLogin(request, response) {
     const { identifier, password, method } = request.body;
-
+    console.log(identifier, password, method);
+    
       const UserExist = method == 'name' ?
       await knex('users').where({ name: identifier }).first()
       :
