@@ -9,7 +9,7 @@ const knex = require("./src/database");//conexão com o banco de dados
 const express = require('express');//ferramenta geral para back end
 const cors = require("cors");//conexão com o front
 
-const routes = require("./routes");//Rotas do back end
+const routes = require("./src/routes");//Rotas do back end
 const app = express();//Inicia o Back end como aplicação com o express
 app.use(cors());//Ativa o cors para conexões externas
 
@@ -17,32 +17,31 @@ app.use(express.json());//Passa todas as requisições para arquivo JSON
 app.use(express.urlencoded({ extended: true }));//Permite requisições com arquivos complexos
 app.use(routes);//Utiliza as Rotas no APP
 
-// async function CheckDatabase(req, res){
-//  console.log("Verificando banco de dados...")
-//   try {
-//    const dataBase = await knex('conquistas');
+async function CheckDatabase(req, res){
+ console.log("Verificando banco de dados...")
+  try {
+   const dataBase = await knex('users');
+  }catch (error) {
+   if(error.message.includes('SQLITE_ERROR: no such table')){
+    console.log("Banco de dados corrompido!")
+    console.log("Iniciando o processo de substituição...");
 
-//   }catch (error) {
-//    if(error.message.includes('SQLITE_ERROR: no such table')){
-//     console.log("Banco de dados corrompido!")
-//     console.log("Iniciando o processo de substituição...");
+    try {
+     const folderId = "1YotlwR6sfgkJ0HofUpKv4j42UuQwT97c"; 
+     const localPath = path.resolve(__dirname, "database", "database.db");
 
-//     try {
-//      const folderId = "124rRIbvgvsnpmesE7uRWt5FQI0gHz8SG"; 
-//      const localPath = path.resolve(__dirname, "database", "database.db");
+     const fileId = await getLatestBackupFileId(folderId);
+     await downloadAndReplaceDatabase(fileId, localPath);
 
-//      const fileId = await getLatestBackupFileId(folderId);
-//      await downloadAndReplaceDatabase(fileId, localPath);
+     console.log("Arquivo database.db restaurado com sucesso.");
+    } catch (restoreError) {
+     console.error("Erro ao restaurar o backup:", restoreError);
+    }
+   }
+  }
+};// checar database
 
-//      console.log("Arquivo database.db restaurado com sucesso.");
-//     } catch (restoreError) {
-//      console.error("Erro ao restaurar o backup:", restoreError);
-//     }
-//    }
-//   }
-// }; checar banco de dados
-
-//CheckDatabase();//verifica integridade do banco de dados ao iniciar o servidor
+CheckDatabase();//verifica integridade do banco de dados ao iniciar o servidor
 
 
 app.use(( error, request, response, next)=>{
