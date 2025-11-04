@@ -1,10 +1,9 @@
 const { OAuth2Client } = require('google-auth-library');//autenticação oauth
 const { hash, compare } = require("bcryptjs");//criptografar senha e verificar senha
 const AppError = require("../utils/AppError");//gerenciador de erros
-const { Resend } = await import('resend');//enviar emails
 const knex = require("../database");//banco de dados
 const axios = require("axios");//conexão com outras apis
-const sendMail = require('../utils/sendMail')
+const sendMail = require('../utils/sendMail');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
