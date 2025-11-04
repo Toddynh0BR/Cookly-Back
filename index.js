@@ -1,4 +1,4 @@
-const Resend = require("resend");//Enviar email
+const { Resend } = await import('resend');
 require("express-async-errors");//Gerenciador de erros
 require('dotenv').config();//Gerenciador de Variaveis de ambiente
 
@@ -67,7 +67,7 @@ app.listen(PORT, () => console.log(`serve is running on port ${PORT}`));
 const cron = require('node-cron');
 const { exec } = require('child_process');
 
-const resend = new Resend(process.env.RESEND_API_KEY);//Configuração para envio de emails
+const resend = Resend(process.env.RESEND_API_KEY);//Configuração para envio de emails
 
 cron.schedule('0 11 23 * *', 
   async () =>  {

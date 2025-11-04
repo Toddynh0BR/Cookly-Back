@@ -1,7 +1,7 @@
 const { OAuth2Client } = require('google-auth-library');//autenticação oauth
 const { hash, compare } = require("bcryptjs");//criptografar senha e verificar senha
 const AppError = require("../utils/AppError");//gerenciador de erros
-const Resend = require('resend');//enviar emails
+const { Resend } = await import('resend');//enviar emails
 const knex = require("../database");//banco de dados
 const axios = require("axios");//conexão com outras apis
 
