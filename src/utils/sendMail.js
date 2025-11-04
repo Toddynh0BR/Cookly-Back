@@ -1,13 +1,13 @@
 const AppError = require("./AppError");//tratamento de erros
 require('dotenv').config();
 
-async function sendEmail(from, to, subject, text, html) {
+async function sendEmail(to, subject, text, html) {
   const { Resend } = await import('resend');
   const resend = new Resend(process.env.EMAIL_KEY);
 
   try {
   const result = await resend.emails.send({
-    from: String(from),
+    from: process.env.EMAIL_FROM,
     to: String(to),
     subject: String(subject),
     text: text ? String(text) : '', 

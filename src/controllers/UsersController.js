@@ -248,17 +248,17 @@ class UsersController {
 
    await knex("codes").insert({time: now, code, user_id: user.id});
 
-   await sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: `Seu código de uso único: ${code}`,
-      html: `
+   await sendMail(
+      email,
+      `Seu código de uso único: ${code}`,
+      '',
+      `
         <div style="font-family: Arial, sans-serif; line-height: 1.5;">
           <h2>Seu código de uso único é:</h2>
           <p><strong>${code}</strong></p>
           <p>Ele expira em 15 minutos!</p>
         </div>
-      `});
+      `);
 
    return response.status(200).json('Código enviado com sucesso!');
    } catch(error) {

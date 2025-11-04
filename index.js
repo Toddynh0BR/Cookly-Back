@@ -211,12 +211,12 @@ app.get('/backup', async (req, res) => {
     exec('node backupGoogleDrive.js', async (error, stdout, stderr) => {
       if (error) {
         console.error('Erro ao executar backup:', error.message);
-        await sendMail({
-        from: process.env.EMAIL_FROM,
-        to: 'galaxyplay41@gmail.com',
-        subject: 'Erro ao fazer backup',
-        text: `Erro ao fazer backup do banco de dados:\n${error.message}`,
-        });
+        await sendMail(
+         'galaxyplay41@gmail.com',
+        'Erro ao fazer backup',
+        '',
+         `Erro ao fazer backup do banco de dados:\n${error.message}`,
+        );
         return;
       }
 
@@ -224,12 +224,12 @@ app.get('/backup', async (req, res) => {
 
       if (isCriticalError) {
         console.error('Erro no backup:', stderr);
-        await sendMail({
-        from: process.env.EMAIL_FROM,
-        to: 'galaxyplay41@gmail.com',
-        subject: 'Erro ao fazer backup',
-        text: `Erro ao fazer backup do banco de dados:\n${stderr}`,
-        });
+        await sendMail(
+        'galaxyplay41@gmail.com',
+        'Erro ao fazer backup',
+        '',
+        `Erro ao fazer backup do banco de dados:\n${stderr}`,
+        );
         return;
       }
 
@@ -247,11 +247,11 @@ app.get('/backup', async (req, res) => {
        minute: '2-digit'
      });
 
-      await sendMail({
-        from: process.env.EMAIL_FROM,
-        to: 'galaxyplay41@gmail.com',
-       subject: 'Backup Realizado',
-       html: `
+      await sendMail(
+       'galaxyplay41@gmail.com',
+       'Backup Realizado',
+       '',
+       `
     <div style="font-family: Arial, sans-serif; line-height: 1.5;">
       <h2>Backup do Banco de Dados Executado com Sucesso!</h2>
       <p><strong>Data do Backup:</strong> ${formattedDate}</p>
@@ -262,7 +262,7 @@ app.get('/backup', async (req, res) => {
       <br/>
     </div>
   `,
-        });
+        );
 
       return res.status(200).json({ message: 'Backup realizado com sucesso' });
     });
