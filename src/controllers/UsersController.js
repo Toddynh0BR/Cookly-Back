@@ -1,20 +1,12 @@
 const { OAuth2Client } = require('google-auth-library');//autenticação oauth
 const { hash, compare } = require("bcryptjs");//criptografar senha e verificar senha
 const AppError = require("../utils/AppError");//gerenciador de erros
-const nodemailer = require('nodemailer');//enviar emails
+const Resend = require('resend');//enviar emails
 const knex = require("../database");//banco de dados
 const axios = require("axios");//conexão com outras apis
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false, // true para 465, false para outras portas
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 function checkUsefulTime(useFulTime) {
   const UseFulTime = new Date(useFulTime);
@@ -257,18 +249,18 @@ class UsersController {
 
    await knex("codes").insert({time: now, code, user_id: user.id});
 
-   await transporter.sendMail({
-    from: `Cookly`,
-    to: email,
-    subject: `Seu Código de uso único: ${code}`,
-     html: `
-     <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-      <h2>Seu código de uso único é:</h2>
-      <br/>
-      <p><strong>${code}</strong>, ele expira em 15 minutos!</p>
-     </div>
-   `,
-   });
+   await resend.emails.send({
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: `Seu código de uso único: ${code}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+          <h2>Seu código de uso único é:</h2>
+          <p><strong>${code}</strong></p>
+          <p>Ele expira em 15 minutos!</p>
+        </div>
+      `,
+    });
 
    return response.status(200).json('Código enviado com sucesso!');
    } catch(error) {

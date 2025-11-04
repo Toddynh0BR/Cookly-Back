@@ -1,4 +1,4 @@
-const nodemailer = require("nodemailer");//Enviar email
+const Resend = require("resend");//Enviar email
 require("express-async-errors");//Gerenciador de erros
 require('dotenv').config();//Gerenciador de Variaveis de ambiente
 
@@ -67,15 +67,7 @@ app.listen(PORT, () => console.log(`serve is running on port ${PORT}`));
 const cron = require('node-cron');
 const { exec } = require('child_process');
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false, // true para 465, false para outras portas
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});//Configuração para envio de emails
+const resend = new Resend(process.env.RESEND_API_KEY);//Configuração para envio de emails
 
 cron.schedule('0 11 23 * *', 
   async () =>  {
@@ -221,11 +213,11 @@ app.get('/backup', async (req, res) => {
     exec('node backupGoogleDrive.js', async (error, stdout, stderr) => {
       if (error) {
         console.error('Erro ao executar backup:', error.message);
-        await transporter.sendMail({
-          from: `"Cookly" <${process.env.EMAIL_USER}>`,
-          to: 'galaxyplay41@gmail.com',
-          subject: 'Erro ao fazer backup',
-          text: `Erro ao fazer backup do banco de dados:\n${error.message}`,
+        await resend.emails.send({
+        from: process.env.EMAIL_FROM,
+        to: 'galaxyplay41@gmail.com',
+        subject: 'Erro ao fazer backup',
+        text: `Erro ao fazer backup do banco de dados:\n${error.message}`,
         });
         return;
       }
@@ -234,11 +226,11 @@ app.get('/backup', async (req, res) => {
 
       if (isCriticalError) {
         console.error('Erro no backup:', stderr);
-        await transporter.sendMail({
-          from: `"Cookly" <${process.env.EMAIL_USER}>`,
-          to: 'galaxyplay41@gmail.com',
-          subject: 'Erro ao fazer backup',
-          text: `Erro ao fazer backup do banco de dados:\n${stderr}`,
+        await resend.emails.send({
+        from: process.env.EMAIL_FROM,
+        to: 'galaxyplay41@gmail.com',
+        subject: 'Erro ao fazer backup',
+        text: `Erro ao fazer backup do banco de dados:\n${stderr}`,
         });
         return;
       }
@@ -257,9 +249,9 @@ app.get('/backup', async (req, res) => {
        minute: '2-digit'
      });
 
-     await transporter.sendMail({
-       from: `"Cookly" <${process.env.EMAIL_USER}>`,
-       to: 'galaxyplay41@gmail.com',
+      await resend.emails.send({
+        from: process.env.EMAIL_FROM,
+        to: 'galaxyplay41@gmail.com',
        subject: 'Backup Realizado',
        html: `
     <div style="font-family: Arial, sans-serif; line-height: 1.5;">
@@ -272,7 +264,7 @@ app.get('/backup', async (req, res) => {
       <br/>
     </div>
   `,
-     });
+        });
 
       return res.status(200).json({ message: 'Backup realizado com sucesso' });
     });
