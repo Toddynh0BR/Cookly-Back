@@ -1,4 +1,4 @@
-const AppError = require("./src/utils/AppError");//tratamento de erros
+const AppError = require("./AppError");//tratamento de erros
 require('dotenv').config();
 
 async function sendEmail(from, to, subject, text, html) {
