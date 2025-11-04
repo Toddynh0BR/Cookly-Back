@@ -1,4 +1,4 @@
-const { Resend } = await import('resend');
+const sendMail = require('./src/utils/sendMail')//enviar emails
 require("express-async-errors");//Gerenciador de erros
 require('dotenv').config();//Gerenciador de Variaveis de ambiente
 
@@ -66,8 +66,6 @@ app.listen(PORT, () => console.log(`serve is running on port ${PORT}`));
 //executar backup de banco de dados
 const cron = require('node-cron');
 const { exec } = require('child_process');
-
-const resend = Resend(process.env.RESEND_API_KEY);//Configuração para envio de emails
 
 cron.schedule('0 11 23 * *', 
   async () =>  {
@@ -213,7 +211,7 @@ app.get('/backup', async (req, res) => {
     exec('node backupGoogleDrive.js', async (error, stdout, stderr) => {
       if (error) {
         console.error('Erro ao executar backup:', error.message);
-        await resend.emails.send({
+        await sendMail({
         from: process.env.EMAIL_FROM,
         to: 'galaxyplay41@gmail.com',
         subject: 'Erro ao fazer backup',
@@ -226,7 +224,7 @@ app.get('/backup', async (req, res) => {
 
       if (isCriticalError) {
         console.error('Erro no backup:', stderr);
-        await resend.emails.send({
+        await sendMail({
         from: process.env.EMAIL_FROM,
         to: 'galaxyplay41@gmail.com',
         subject: 'Erro ao fazer backup',
@@ -249,7 +247,7 @@ app.get('/backup', async (req, res) => {
        minute: '2-digit'
      });
 
-      await resend.emails.send({
+      await sendMail({
         from: process.env.EMAIL_FROM,
         to: 'galaxyplay41@gmail.com',
        subject: 'Backup Realizado',

@@ -4,9 +4,9 @@ const AppError = require("../utils/AppError");//gerenciador de erros
 const { Resend } = await import('resend');//enviar emails
 const knex = require("../database");//banco de dados
 const axios = require("axios");//conexão com outras apis
+const sendMail = require('../utils/sendMail')
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 function checkUsefulTime(useFulTime) {
   const UseFulTime = new Date(useFulTime);
@@ -249,7 +249,7 @@ class UsersController {
 
    await knex("codes").insert({time: now, code, user_id: user.id});
 
-   await resend.emails.send({
+   await sendMail({
       from: process.env.EMAIL_FROM,
       to: email,
       subject: `Seu código de uso único: ${code}`,
@@ -259,8 +259,7 @@ class UsersController {
           <p><strong>${code}</strong></p>
           <p>Ele expira em 15 minutos!</p>
         </div>
-      `,
-    });
+      `});
 
    return response.status(200).json('Código enviado com sucesso!');
    } catch(error) {
