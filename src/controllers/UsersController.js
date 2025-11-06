@@ -3,7 +3,7 @@ const { hash, compare } = require("bcryptjs");//criptografar senha e verificar s
 const AppError = require("../utils/AppError");//gerenciador de erros
 const knex = require("../database");//banco de dados
 const axios = require("axios");//conexão com outras apis
-const sendMail = require('../utils/sendMail');
+const { sendMail } = require('../utils/sendMail');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -251,7 +251,6 @@ class UsersController {
    await sendMail(
       email,
       `Seu código de uso único: ${code}`,
-      '',
       `
         <div style="font-family: Arial, sans-serif; line-height: 1.5;">
           <h2>Seu código de uso único é:</h2>
