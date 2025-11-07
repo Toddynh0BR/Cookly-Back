@@ -7,12 +7,13 @@ function makeRawMessage(to, from, subject, html) {
   const messageParts = [
     `From: ${from}`,
     `To: ${to}`,
-    `Subject: ${subject}`,
+    `Subject: ${encodedSubject}`,
     'MIME-Version: 1.0',
     'Content-Type: text/html; charset=UTF-8',
     '',
     html,
   ];
+  const encodedSubject = `=?utf-8?B?${Buffer.from(subject, "utf-8").toString("base64")}?=`;
   const message = messageParts.join('\n');
   return Buffer.from(message)
     .toString('base64')
@@ -22,8 +23,8 @@ function makeRawMessage(to, from, subject, html) {
 }
 
 async function sendMail({ to, subject, html }) {
-  console.log(`EXECUTANDO SENDMAIL COM: ${to, subject, html}`);
-  
+  console.log(`EXECUTANDO SENDMAIL COM: ${to}, ${subject}, ${html}`);
+
   try {
     if (!to || !subject || !html) {
       throw new AppError(
