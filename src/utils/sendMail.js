@@ -22,7 +22,16 @@ function makeRawMessage(to, from, subject, html) {
 }
 
 async function sendMail({ to, subject, html }) {
+  console.log(`EXECUTANDO SENDMAIL COM: ${to, subject, html}`);
+  
   try {
+    if (!to || !subject || !html) {
+      throw new AppError(
+        `Parâmetros inválidos para envio de email. Recebido: to=${to}, subject=${subject}`,
+        400
+      );
+    }
+
     const oAuth2Client = new google.auth.OAuth2(
       process.env.DESKTOP_CLIENT_ID,
       process.env.DESKTOP_CLIENT_SECRET
