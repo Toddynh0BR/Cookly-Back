@@ -4,6 +4,7 @@ const { google } = require('googleapis');
 const AppError = require('./AppError');
 
 function makeRawMessage(to, from, subject, html) {
+  const encodedSubject = `=?utf-8?B?${Buffer.from(subject, "utf-8").toString("base64")}?=`;
   const messageParts = [
     `From: ${from}`,
     `To: ${to}`,
@@ -13,7 +14,7 @@ function makeRawMessage(to, from, subject, html) {
     '',
     html,
   ];
-  const encodedSubject = `=?utf-8?B?${Buffer.from(subject, "utf-8").toString("base64")}?=`;
+
   const message = messageParts.join('\n');
   return Buffer.from(message)
     .toString('base64')
