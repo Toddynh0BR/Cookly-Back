@@ -5,11 +5,11 @@ const fs = require('fs');
 // Função para criar OAuth2 client
 function createOAuth2Client() {
   const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET
+    process.env.DESKTOP_CLIENT_ID,
+    process.env.DESKTOP_CLIENT_SECRET
   );
   oauth2Client.setCredentials({
-    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+    refresh_token: process.env.DESKTOP_REFRESH_TOKEN,
   });
   return oauth2Client;
 }
