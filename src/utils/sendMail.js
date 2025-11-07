@@ -1,57 +1,48 @@
 // sendMail.js
+require('dotenv').config();
 const { google } = require('googleapis');
-const fs = require('fs');
+const AppError = require('./AppError');
 
-// Função para criar OAuth2 client
-function createOAuth2Client() {
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.DESKTOP_CLIENT_ID,
-    process.env.DESKTOP_CLIENT_SECRET
-  );
-  oauth2Client.setCredentials({
-    refresh_token: process.env.DESKTOP_REFRESH_TOKEN,
-  });
-  return oauth2Client;
-}
-
-// Função que cria o corpo da mensagem em base64
-function makeBody(to, from, subject, message) {
-  const str = [
+function makeRawMessage(to, from, subject, html) {
+  const messageParts = [
     `From: ${from}`,
     `To: ${to}`,
     `Subject: ${subject}`,
+    'MIME-Version: 1.0',
     'Content-Type: text/html; charset=UTF-8',
     '',
-    message,
-  ].join('\n');
-
-  return Buffer.from(str)
+    html,
+  ];
+  const message = messageParts.join('\n');
+  return Buffer.from(message)
     .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 }
 
-// Função principal para enviar e-mail
 async function sendMail({ to, subject, html }) {
   try {
-    const oauth2Client = createOAuth2Client();
-    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+    const oAuth2Client = new google.auth.OAuth2(
+      process.env.DESKTOP_CLIENT_ID,
+      process.env.DESKTOP_CLIENT_SECRET
+    );
+    oAuth2Client.setCredentials({ refresh_token: process.env.DESKTOP_REFRESH_TOKEN });
 
-    const raw = makeBody(to, process.env.SENDER_EMAIL, subject, html);
+    const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+    const raw = makeRawMessage(to, process.env.GMAIL_USER, subject, html);
 
     const res = await gmail.users.messages.send({
       userId: 'me',
       requestBody: { raw },
     });
 
-    console.log('Email enviado com sucesso:', res.data.id);
+    console.log('✅ Email enviado com sucesso! ID:', res.data.id);
     return res.data;
   } catch (error) {
-    console.error('Erro ao enviar email:', error);
-    throw error;
+    console.error('❌ Erro ao enviar email:', error);
+    throw new AppError(`Erro ao enviar email: ${error.message || ''}`, 500);
   }
 }
 
-// Exporta a função para ser usada em todo o backend
 module.exports = { sendMail };

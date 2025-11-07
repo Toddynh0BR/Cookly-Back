@@ -236,6 +236,10 @@ class UsersController {
   async forgotPassword(request, response) {
   const { email } = request.body;
 
+  if (!email) throw new AppError('Email não fornecido', 400);
+  
+  console.log(`Enviando código único para: ${email}`);
+
   const user = await knex('users')
                     .where({ email })
                     .first();
