@@ -87,7 +87,7 @@ class UsersController {
 
       const User = await knex('users').where({ email }).first();
 
-      if (User) return response.json({ User: User });
+      if (User) return response.status(200).json({ User: User });
       else return response.status(404).json({ message: 'Usuário não encontrado.' });;
 
      } catch(error) {
@@ -107,7 +107,7 @@ class UsersController {
 
        const User = await knex('users').where({ email }).first();
 
-       if (User) return response.json({ User: User });
+       if (User) return response.status(200).json({ User: User });
        else return response.status(404).json({ message: 'Usuário não encontrado.' });;
       } catch (error) {
        console.error(error)
@@ -134,9 +134,9 @@ class UsersController {
 
       const User = await knex('users').where({ email }).first();
 
-      if (User) return response.json({ User: User, message: 'old' });
+      if (User) return response.status(200).json({ User: User, message: 'old' });
       else {
-        if (!level) return response.json({ message: 'OK'});
+        if (!level) return response.json({ message: 'OK'});//caso o front esteja apenas checando veracidade do id token, ira parar por aqui
         const hashedPassword = await hash(password, 8);
 
         const [NewUser] = await knex('users')
@@ -151,7 +151,19 @@ class UsersController {
                                })
                                .returning(['img', 'name', 'email', 'level']);
 
-        return response.json({ User: NewUser, message: 'new' });
+      await sendMail({
+        to: email,
+        subject: `Bem Vindo ao Cookly!`,
+        html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+         <h2>Bem Vindo ao Cookly ${name}!!!</h2>
+         <br/>
+         <p>Estamos muito felizes em receber vc em nossa plataforma, esperamos que aproveite-a bem.</p>
+        </div>
+       `,
+     });
+
+        return response.status(201).json({ User: NewUser, message: 'new' });
       };
 
      } catch(error) {
@@ -171,9 +183,9 @@ class UsersController {
 
        const User = await knex('users').where({ email }).first();
 
-      if (User) return response.json({ User: User, message: 'old' });
+      if (User) return response.status(200).json({ User: User, message: 'old' });
       else {
-        if (!level) return response.json({ message: 'OK'});
+        if (!level) return response.json({ message: 'OK'});//caso o front esteja apenas checando veracidade do id token, ira parar por aqui
         const hashedPassword = await hash(password, 8);
 
         const [NewUser] = await knex('users')
@@ -188,7 +200,19 @@ class UsersController {
                                })
                                .returning(['img', 'name', 'email', 'level']);
 
-        return response.json({ User: NewUser, message: 'new' });
+      await sendMail({
+        to: email,
+        subject: `Bem Vindo ao Cookly!`,
+        html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+         <h2>Bem Vindo ao Cookly ${name}!!!</h2>
+         <br/>
+         <p>Estamos muito felizes em receber vc em nossa plataforma, esperamos que aproveite-a bem.</p>
+        </div>
+       `,
+     });
+
+        return response.status(201).json({ User: NewUser, message: 'new' });
       };
 
       } catch (error) {
@@ -310,7 +334,7 @@ class UsersController {
         <div style="font-family: Arial, sans-serif; line-height: 1.5;">
          <h2>Sua senha foi alterada com sucesso:</h2>
          <br/>
-         <p>Caso não tenha sido vc, entre em contato conosco pelo email: <a href="cookly007@gmail.com">cookly007@gmail.com</a></p>
+         <p>Caso não tenha sido vc, entre em contato conosco pelo email: <a href="mailto:cookly007@gmail.com">cookly007@gmail.com</a></p>
         </div>
        `,
      });
