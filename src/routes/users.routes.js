@@ -12,6 +12,7 @@ usersRoutes.post("/signup", usersController.create);
 usersRoutes.put("/update", usersController.update);
 usersRoutes.post("/forgot", usersController.forgotPassword);
 usersRoutes.post("/reset", usersController.resetPassword);
+usersRoutes.delete('/delete', usersController.deleteUser);
 
 module.exports = usersRoutes;
 
