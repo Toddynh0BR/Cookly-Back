@@ -258,8 +258,9 @@ class UsersController {
       html:`
         <div style="font-family: Arial, sans-serif; line-height: 1.5;">
           <h2>Seu código de uso único é:</h2>
-          <p><strong>${code}</strong></p>
-          <p>Ele expira em 15 minutos!</p>
+          <h3><strong>${code}</strong></h3>
+          <p>Ele serve somente uma vez e expira em 15 minutos, <br/> não o compartilhe com ninguem! Em caso de erro ao alterar a senha,
+           entre em contato conosco por esse gmail.</p>
         </div>
       `
    });
@@ -301,10 +302,9 @@ class UsersController {
            .where({ email })
            .update({ password: hashedPassword });
   
-      await transporter.sendMail({
-       from: `Cookly`,
-       to: email,
-       subject: `Senha alterada com sucesso!`,
+      await sendMail({
+        to: email,
+        subject: `Senha alterada com sucesso!`,
         html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.5;">
          <h2>Sua senha foi alterada com sucesso:</h2>
@@ -312,7 +312,7 @@ class UsersController {
          <p>Caso não tenha sido vc, entre em contato conosco pelo email: <a href="cookly007@gmail.com">cookly007@gmail.com</a></p>
         </div>
        `,
-      });
+     });
       
       return response.status(200).json({ message: "Senha redefinida com sucesso" });
   } catch (error) {
