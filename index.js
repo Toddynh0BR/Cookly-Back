@@ -168,7 +168,7 @@ app.get("/replace", async (req, res)=> {
 
 app.get('/health', (req, res) => {
   console.log('Executando health check');
-   res.json({ status: 'online' });
+   res.status(200).json({ status: 'online' });
 });//health check
 
 app.head('/health', (req, res) => {
