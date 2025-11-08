@@ -259,7 +259,8 @@ class UsersController {
         <div style="font-family: Arial, sans-serif; line-height: 1.5;">
           <h2>Seu código de uso único é:</h2>
           <h3><strong>${code}</strong></h3>
-          <p>Ele serve somente uma vez e expira em 15 minutos, <br/> não o compartilhe com ninguem! Em caso de erro ao alterar a senha,
+          <p>Ele serve somente uma vez e expira em 15 minutos, <br/> Não o compartilhe com ninguem!<br/><br/>
+           Em caso de erro ao alterar a senha,
            entre em contato conosco por esse gmail.</p>
         </div>
       `
@@ -296,7 +297,7 @@ class UsersController {
        if (checkUsefulTime(Code.time)) throw new AppError('Tempo limíte atingido', 408);
        await knex('codes').where({ code }).delete();
   
-       const hashedPassword = await bcrypt.hash(newPassword, 8);
+       const hashedPassword = await hash(newPassword, 8);
 
        await knex('users')
            .where({ email })
