@@ -271,3 +271,43 @@ app.get('/backup', async (req, res) => {
     return res.status(500).json({ error: 'Erro ao realizar backup' });
   }
 });//backup de banco de dados
+
+//burocracia do facebook
+
+app.get('/privacy', async (req, res) => {
+  console.log('Mostrando políticas de privacidade')
+
+  return res.status(200).json(
+    {
+   "name": "Cookly",
+   "description": "Seu nome, email e foto de perfil são usados apenas para autenticação via Facebook Login.",
+   "contact": "cookly007@gmail.com",
+   "data_use": "Os dados não são compartilhados com terceiros e são usados apenas para autenticação e para complementar as informações básicas do usuário(nickname, foto do perfil, email).",
+   "delete_request": "Envie um email para cookly007@gmail.com solicitando a exclusão de dados."
+   }
+  )
+})//políticas de privacidade
+
+app.get('/terms', async (req, res) => {
+  console.log('Mostrando termos')
+
+  return res.status(200).json(
+{
+  "name": "Cookly",
+  "description": "Ao usar o Cookly, você concorda com o uso do login via Facebook apenas para autenticação, identificação segura e complemento das informações básicas do usuário.",
+  "contact": "cookly007@gmail.com"
+}
+  )
+})//termos
+
+app.get('/terms', async (req, res) => {
+  console.log('Mostrando termos')
+
+  return res.status(200).json(
+{
+  "instructions": "Envie um email para cookly007@gmail.com com o ID do usuário do Facebook ou email para excluir seus dados.",
+  "contact": "cookly007@gmail.com",
+  "status": "available"
+}
+  )
+})//delete user facebook

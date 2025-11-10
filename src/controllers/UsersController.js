@@ -347,12 +347,6 @@ class UsersController {
     }
 
   };
-
-  async deleteUser(request, response){
-    const { user_id } = request.body;
-
-    return response.status(200).json({ message: 'ok' });
-  };
 };
 
 module.exports = UsersController;
