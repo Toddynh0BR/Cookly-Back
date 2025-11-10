@@ -300,7 +300,7 @@ app.get('/terms', async (req, res) => {
   )
 })//termos
 
-app.get('/terms', async (req, res) => {
+app.get('/delete', async (req, res) => {
   console.log('Mostrando termos')
 
   return res.status(200).json(
