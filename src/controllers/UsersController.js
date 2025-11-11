@@ -145,7 +145,7 @@ class UsersController {
                                 email,
                                 password: hashedPassword,
                                 provider,
-                                provider_id: sub,
+                                provider_id: google_id,
                                 level,
                                 img: picture || null,
                                })
@@ -194,7 +194,7 @@ class UsersController {
                                 email,
                                 password: hashedPassword,
                                 provider,
-                                provider_id: id,
+                                provider_id: facebook_id,
                                 level,
                                 img: picture || null,
                                })
