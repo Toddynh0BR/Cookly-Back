@@ -24,8 +24,6 @@ function makeRawMessage(to, from, subject, html) {
 }
 
 async function sendMail({ to, subject, html }) {
-  console.log(`EXECUTANDO SENDMAIL COM: ${to}, ${subject}, ${html}`);
-
   try {
     if (!to || !subject || !html) {
       throw new AppError(

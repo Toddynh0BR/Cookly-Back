@@ -390,7 +390,7 @@ font-family: Helvetica Neue, Helvetica, Lucida Grande, tahoma, verdana, arial, s
 font-weight: 600;
 font-size: 17px;
 letter-spacing: 5px;">
-    ${code}
+    <p>${code.toString()}</p>
   </div>
 
    <strong style="  font-family: 'Roboto', sans-serif;
