@@ -13,7 +13,9 @@ module.exports = {
     migrations: {
       directory: path.resolve(__dirname, "src", "database", "migrations") // Defina o diretório de migrações
     },
-    directory: path.resolve(__dirname, "src", "database", "migrations"),
+    seeds: {
+      directory: path.resolve(__dirname, "src", "database", "seeds"),
+    },
     useNullAsDefault: true,
   }
 };
