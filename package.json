@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "migrate": "knex migrate:latest",
-    "seed": "knex seed:run --knexfile knexfile.js"
+    "migrate": "knex migrate:latest --env development --knexfile knexfile.js",
+    "seed": "knex seed:run --env development --knexfile knexfile.js"
   },
   "keywords": [],
   "author": "",
