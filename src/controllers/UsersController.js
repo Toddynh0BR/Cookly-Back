@@ -155,11 +155,39 @@ class UsersController {
         to: email,
         subject: `Bem Vindo ao Cookly!`,
         html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-         <h2>Bem Vindo ao Cookly ${name}!!!</h2>
-         <br/>
-         <p>Estamos muito felizes em receber vc em nossa plataforma, esperamos que aproveite-a bem.</p>
-        </div>
+<div style="
+  flex-direction: column;
+  height: fit-content;
+  max-width: 380px;
+
+  margin: 0 auto;" >
+  <header style="
+  height: fit-content;
+  width: 100%;
+
+ 
+  padding-top: 40px;
+  border-bottom: 1px solid #d5d5d5;
+  margin-bottom: 20px;"
+  >
+    <img style="  
+    width: 45px;
+  height: 45px;" src="https://raw.githubusercontent.com/Toddynh0BR/Assets/main/cookly.png" alt="Cookly">
+  </header>
+
+  <strong style="  font-family: 'Roboto', sans-serif;
+  font-size: 17px;">Bem vindo ao Cookly!
+  </strong>
+
+  <p style="
+  font-family: Helvetica Neue, Helvetica, Lucida Grande, tahoma, verdana, arial, sans-serif;
+  font-size: 16px;
+  color: #231c14;">
+   Estamos muito felizes em ter vc na nossa plataforma, aproveite-a bem!
+  </p>
+
+
+<div/>
        `,
      });
 
@@ -204,11 +232,39 @@ class UsersController {
         to: email,
         subject: `Bem Vindo ao Cookly!`,
         html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-         <h2>Bem Vindo ao Cookly ${name}!!!</h2>
-         <br/>
-         <p>Estamos muito felizes em receber vc em nossa plataforma, esperamos que aproveite-a bem.</p>
-        </div>
+<div style="
+  flex-direction: column;
+  height: fit-content;
+  max-width: 380px;
+
+  margin: 0 auto;" >
+  <header style="
+  height: fit-content;
+  width: 100%;
+
+ 
+  padding-top: 40px;
+  border-bottom: 1px solid #d5d5d5;
+  margin-bottom: 20px;"
+  >
+    <img style="  
+    width: 45px;
+  height: 45px;" src="https://raw.githubusercontent.com/Toddynh0BR/Assets/main/cookly.png" alt="Cookly">
+  </header>
+
+  <strong style="  font-family: 'Roboto', sans-serif;
+  font-size: 17px;">Bem vindo ao Cookly!
+  </strong>
+
+  <p style="
+  font-family: Helvetica Neue, Helvetica, Lucida Grande, tahoma, verdana, arial, sans-serif;
+  font-size: 16px;
+  color: #231c14;">
+   Estamos muito felizes em ter vc na nossa plataforma, aproveite-a bem!
+  </p>
+
+
+<div/>
        `,
      });
 
@@ -280,13 +336,84 @@ class UsersController {
       to: email,
       subject: `Seu código de uso único: ${code}`,
       html:`
-        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-          <h2>Seu código de uso único é:</h2>
-          <h3><strong>${code}</strong></h3>
-          <p>Ele serve somente uma vez e expira em 15 minutos, <br/> Não o compartilhe com ninguem!<br/><br/>
-           Em caso de erro ao alterar a senha,
-           entre em contato conosco por esse gmail.</p>
-        </div>
+<div style="
+  flex-direction: column;
+  height: fit-content;
+  max-width: 380px;
+
+  margin: 0 auto;" 
+  >
+
+  <header style="
+    height: fit-content;
+    width: 100%;
+    padding-top: 40px;
+    border-bottom: 1px solid #d5d5d5;
+    margin-bottom: 20px;"
+  >
+   <img style="  
+     width: 45px;
+     height: 45px;" src="https://raw.githubusercontent.com/Toddynh0BR/Assets/main/cookly.png" alt="Cookly"
+   >
+  </header>
+
+  <strong style="
+   font-family: 'Roboto', sans-serif;
+   font-size: 17px;">
+   Seu código de uso único
+  </strong>
+
+  <p style=" font-family: Helvetica Neue, Helvetica, Lucida Grande, tahoma, verdana, arial, sans-serif;
+  font-size: 16px;
+  color: #231c14;">
+    Olá,
+    <br >
+    <br >
+    Utilize este código de uso único para trocar a sua senha de usuário.
+    Ele é válido por 15 minutos e não deve ser compartilhado com ninguem.
+  </p>
+
+  <div style="height: 50px;
+width: 100%;
+
+background-color: #f1582178;
+border: 1px solid #f15821;
+border-radius: 7px;
+
+margin: 20px 0;
+
+justify-content: center;
+align-items: center;
+display: flex;
+
+font-family: Helvetica Neue, Helvetica, Lucida Grande, tahoma, verdana, arial, sans-serif;
+font-weight: 600;
+font-size: 17px;
+letter-spacing: 5px;">
+    ${code}
+  </div>
+
+   <strong style="  font-family: 'Roboto', sans-serif;
+  font-size: 17px;">Se alguém solicitar este código</strong>
+   <p style=" font-family: Helvetica Neue, Helvetica, Lucida Grande, tahoma, verdana, arial, sans-serif;
+  font-size: 16px;
+  color: #231c14;">
+    Não compartilhe esse código com ninguém, especialmente se a pessoa disser que trabalha para o Cookly. Ela pode estar tentando invadir sua conta.
+   </p>
+
+   <strong style="  font-family: 'Roboto', sans-serif;
+  font-size: 17px;">Não estava esperando isso?</strong>
+   <p style=" font-family: Helvetica Neue, Helvetica, Lucida Grande, tahoma, verdana, arial, sans-serif;
+  font-size: 16px;
+  color: #231c14;">
+    Se você recebeu este email, mas não está tentando trocar a sua senha, é possível que alguém esteja tentando invadir sua conta. Desde que você não compartilhe esse código com ninguém, não é necessário tomar qualquer outra medida.
+    <br>
+    <br>
+    Obrigada,<br>
+    Segurança do Cookly
+   </p>
+
+<div/>
       `
    });
 
@@ -331,11 +458,40 @@ class UsersController {
         to: email,
         subject: `Senha alterada com sucesso!`,
         html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-         <h2>Sua senha foi alterada com sucesso:</h2>
-         <br/>
-         <p>Caso não tenha sido vc, entre em contato conosco pelo email: <a href="mailto:cookly007@gmail.com">cookly007@gmail.com</a></p>
-        </div>
+ <div style="
+  flex-direction: column;
+  height: fit-content;
+  max-width: 380px;
+
+  margin: 0 auto;" >
+  <header style="
+  height: fit-content;
+  width: 100%;
+
+ 
+  padding-top: 40px;
+  border-bottom: 1px solid #d5d5d5;
+  margin-bottom: 20px;"
+  >
+    <img style="  
+    width: 45px;
+  height: 45px;" src="https://raw.githubusercontent.com/Toddynh0BR/Assets/main/cookly.png" alt="Cookly">
+  </header>
+
+  <strong style="  font-family: 'Roboto', sans-serif;
+  font-size: 17px;">Senha alterada com sucesso!
+  </strong>
+
+  <p style="
+  font-family: Helvetica Neue, Helvetica, Lucida Grande, tahoma, verdana, arial, sans-serif;
+  font-size: 16px;
+  color: #231c14;">
+   Sua senha de usuário foi alterada com sucesso, caso não tenha sido você, entre em contato conosco pelo email 
+   <a style=" text-decoration: none;"  href="mailto:cookly007@gmail.com">cookly007@gmail.com</a>
+  </p>
+
+
+<div/>
        `,
      });
       

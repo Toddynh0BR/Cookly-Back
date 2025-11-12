@@ -5,6 +5,7 @@ require('dotenv').config();//Gerenciador de Variaveis de ambiente
 const sendPushNotification = require('./src/utils/SendNotification');//função para enviar notificação
 const AppError = require("./src/utils/AppError");//tratamento de erros
 const knex = require("./src/database");//conexão com o banco de dados
+const axios = require('axios');//chamadas para back ends
 
 const express = require('express');//ferramenta geral para back end
 const cors = require("cors");//conexão com o front
@@ -171,11 +172,6 @@ app.get('/health', (req, res) => {
    res.status(200).json({ status: 'online' });
 });//health check
 
-app.head('/health', (req, res) => {
-  console.log('Executando health check');
-  res.status(200).end();
-});//health check
-
 app.post('/push-token', async (req, res) => {
   try {
     const { token, name } = req.body;
@@ -271,6 +267,23 @@ app.get('/backup', async (req, res) => {
     return res.status(500).json({ error: 'Erro ao realizar backup' });
   }
 });//backup de banco de dados
+
+app.post("/ping", (req, res) => {
+  console.log("Keep-alive recebido:", new Date().toISOString());
+  return res.status(200).json({ ok: true });
+});
+
+cron.schedule("*/10 * * * *", async () => {
+  try {
+    console.log("Enviando requisição POST para manter o servidor ativo...");
+
+    await axios.post(process.env.BACK_END_URL, { keepAlive: true });
+
+    console.log("Requisição de keep-alive enviada com sucesso!");
+  } catch (error) {
+    console.error("Erro ao enviar keep-alive:", error.message);
+  }
+});
 
 //burocracia do facebook
 
