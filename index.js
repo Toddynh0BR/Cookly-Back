@@ -271,19 +271,7 @@ app.get('/backup', async (req, res) => {
 app.post("/ping", (req, res) => {
   console.log("Keep-alive recebido:", new Date().toISOString());
   return res.status(200).json({ ok: true });
-});
-
-cron.schedule("*/10 * * * *", async () => {
-  try {
-    console.log("Enviando requisição POST para manter o servidor ativo...");
-
-    await axios.post(process.env.BACK_END_URL, { keepAlive: true });
-
-    console.log("Requisição de keep-alive enviada com sucesso!");
-  } catch (error) {
-    console.error("Erro ao enviar keep-alive:", error.message);
-  }
-});
+});//manter back end ativo
 
 //burocracia do facebook
 
