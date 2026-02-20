@@ -1,31 +1,35 @@
-// refresh_token.js
-const { google } = require("googleapis");
-const readline = require("readline");
+const { google } = require('googleapis');
+const readline = require('readline');
+
+const CLIENT_ID = '';
+const CLIENT_SECRET = '';
 
 const oauth2Client = new google.auth.OAuth2(
-  process.env.DESKTOP_CLIENT_ID,
-  process.env.DESKTOP_CLIENT_SECRET,
-  "urn:ietf:wg:oauth:2.0:oob"
+  CLIENT_ID,
+  CLIENT_SECRET,
+  'http://localhost'
 );
 
-const SCOPES = ["https://mail.google.com/"];
+const scopes = [
+  'https://www.googleapis.com/auth/gmail.send'
+];
 
-const url = oauth2Client.generateAuthUrl({
-  access_type: "offline",
-  scope: SCOPES,
+const authUrl = oauth2Client.generateAuthUrl({
+  access_type: 'offline',
+  scope: scopes,
+  prompt: 'consent'
 });
 
-console.log("👉 Visite este link e cole o código abaixo:");
-console.log(url);
+console.log('\nAuthorize this app by visiting this url:\n');
+console.log(authUrl);
 
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout,
+  output: process.stdout
 });
 
-rl.question("Cole aqui o código: ", async (code) => {
+rl.question('\nEnter the code from that page here: ', async (code) => {
   const { tokens } = await oauth2Client.getToken(code);
-  console.log("\n✅ Seu refresh token é:");
-  console.log(tokens.refresh_token);
+  console.log('\nTokens:\n', tokens);
   rl.close();
 });
