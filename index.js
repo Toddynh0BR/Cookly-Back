@@ -18,33 +18,6 @@ app.use(express.json());//Passa todas as requisições para arquivo JSON
 app.use(express.urlencoded({ extended: true }));//Permite requisições com arquivos complexos
 app.use(routes);//Utiliza as Rotas no APP
 
-async function CheckDatabase(req, res){
- console.log("Verificando banco de dados...")
-  try {
-   const dataBase = await knex('users');
-  }catch (error) {
-   if(error.message.includes('SQLITE_ERROR: no such table')){
-    console.log("Banco de dados corrompido!")
-    console.log("Iniciando o processo de substituição...");
-
-    try {
-     const folderId = "1YotlwR6sfgkJ0HofUpKv4j42UuQwT97c"; 
-     const localPath = path.resolve(__dirname, "database", "database.db");
-
-     const fileId = await getLatestBackupFileId(folderId);
-     await downloadAndReplaceDatabase(fileId, localPath);
-
-     console.log("Arquivo database.db restaurado com sucesso.");
-    } catch (restoreError) {
-     console.error("Erro ao restaurar o backup:", restoreError);
-    }
-   }
-  }
-};// checar database
-
-CheckDatabase();//verifica integridade do banco de dados ao iniciar o servidor
-
-
 app.use(( error, request, response, next)=>{
  if(error instanceof AppError){
  return response.status(error.statusCode).json({
@@ -63,38 +36,114 @@ app.use(( error, request, response, next)=>{
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`serve is running on port ${PORT}`));
+app.use(routes);
 
 //executar backup de banco de dados
 const cron = require('node-cron');
 const { exec } = require('child_process');
 
-cron.schedule('0 11 23 * *', 
+async function CreateNewRecipe() {
+    const IARecipes = await knex('recipes')
+                           .where({ IA_made: 'true'})
+                           .returning('name');
+
+    const Prompt = `
+Você é uma IA que gera receitas para meu app. Gere uma nova receita, respeitando esta estrutura de JSON válida (responda apenas com o JSON, sem explicações):
+
+{
+  "name": "string",
+  "ingredients": "string, string, string",
+  "description": "string",
+  "difficult": "easy" | "medium" | "hard",
+  "category": "sobremesa" | "lanche" | "refeicao" | "cafe" | "bolo" | "bebida" | "fruta" | "pao" | "outro",
+  "utensils": "string, string, string",
+  "time": "min-max em minutos",
+  "steps": "1. passo | 2. passo | 3. passo"
+}
+
+Ingredientes devem incluir quantidade (ex: "3 ovos") e ser separados por vírgula. Utensílios também separados por vírgula. 
+Tempo deve mostrar tempo minimo e maximo seguido da sigla min (ex: 140-160min). Passos  devem ser separados por |.
+
+${IARecipes ? ` a receita nao pode ser nenhuma das citadas a seguir ${IARecipes.map(r => r.name).join(', ')} ` : null}
+    `
+
+ try {
+    console.log('Enviando prompt para HuggingFace');
+    const Response = await axios.post(
+  "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct",
+  { inputs: Prompt },
+  {
+    headers: {
+      Authorization: `Bearer ${process.env.HUGGING_READ_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+  }
+    );
+
+    console.log('Receita gerada, Buscando imagem');
+    const GeneratedRecipe = Response.data[0]?.generated_text;
+    const parsedGeratedRecipe = JSON.parse(GeneratedRecipe);
+
+    const imageURL = await getFoodImage(parsedGeratedRecipe.name)
+    console.log('Imagem buscada, URL:', imageURL);
+
+    console.log('Buscando ID da IA');
+    const IAid = await knex('users').where({ email: 'cookly007IA@gmail.com' }).first();
+
+    console.log('Inserindo receita no database');
+    const RecipeID = await knex('recipes').insert({
+      img: imageURL,
+      name: parsedGeratedRecipe.name,
+      description: parsedGeratedRecipe.description, 
+      ingredients: parsedGeratedRecipe.ingredients, 
+      difficult: parsedGeratedRecipe.difficult, 
+      category: parsedGeratedRecipe.category, 
+      utensils: parsedGeratedRecipe.utensils, 
+      time: parsedGeratedRecipe.time, 
+      steps: parsedGeratedRecipe.steps,
+      user_id: IAid.id,
+      IA_made: 'true'
+    }).returning(['id']);
+    
+    console.log('Receita inserida, inisiando processo de envio de notificações:');
+    console.log('1-Buscando tokens ');
+    console.log('20% ///////');
+    const tokens = await knex('notifications').where({ permite: 'permite'});
+
+    console.log('2-IDs adquiridos, verificando tokens');
+    console.log('40% /////////////////');
+    if (!tokens.length) {
+      console.log('3-Nenhum token válido');
+      console.log('100% ////////////////////////////');
+      return json({ message: 'Receita gerada, nenhuma notificação enviada'})
+    }
+
+    console.log('Tokens validados, enviando notificações')
+    console.log('60% /////////////////////////////');
+    await Promise.all(
+      tokens.map(async (token)=> {
+       const message = `
+Veja essa receita gerada por IA:
+ ${parsedGeratedRecipe.name}.`;
+
+       await sendPushNotification(token, message, 'Nova receita disponível!', 'recipe', RecipeID.id)   
+      })
+    );
+
+    console.log('Notificações enviadas com sucesso!');
+    console.log('100% ///////////////////////////////////////////')
+    return json({ message: 'receita gerada' });
+
+ } catch(error) {
+    console.error(error)
+    throw new AppError('Erro ao gerar receita, IA provavelmente gerou errado', 500);
+ }
+
+};
+
+cron.schedule('30 9 */4 * *', 
   async () =>  {
-  const dataReferencia = new Date('2024-05-23');
-
-  // Data atual
-  const dataAtual = new Date();
-
-  // Calcular a diferença em anos e meses
-  const anosDeDiferenca = dataAtual.getFullYear() - dataReferencia.getFullYear();
-  const mesesDeDiferenca = dataAtual.getMonth() - dataReferencia.getMonth();
-
-  // Total de meses
-  const totalMeses = anosDeDiferenca * 12 + mesesDeDiferenca;
-
-  console.log(`Meses passados: ${totalMeses}`);
-
-  
-  const tokens = await knex('token');
-  console.log(tokens);
-
-  if (!tokens.length) return;
-
-  tokens.forEach(token => {
-    console.log(token.token);
-    const message = `Feliz Aniversário de Namoro ${token.name}! Juntos há ${totalMeses} meses!`;
-    sendPushNotification(token.token, message, 'Feliz Aniversário de Namoro!');
-  });
+    CreateNewRecipe()
   },
 );
 
@@ -112,6 +161,7 @@ const auth = new google.auth.GoogleAuth({
 const drive = google.drive({ version: "v3", auth });//conexão com o google drive
 
 async function getLatestBackupFileId(folderId) {
+  console.log('Buscando backup de database')
   const res = await drive.files.list({
     q: `'${folderId}' in parents`,
     orderBy: "modifiedTime desc",
@@ -124,10 +174,12 @@ async function getLatestBackupFileId(folderId) {
     throw new Error("Nenhum arquivo encontrado na pasta de backup.");
   }
 
+  console.log('Arquivo pego:', files[0].id);
   return files[0].id;
 };//buscar arquivo .db mais recente mais recente
 
 async function downloadAndReplaceDatabase(fileId, destinationPath) {
+  console.log('Iniciando substituição:', fileId, destinationPath);
   const dest = fs.createWriteStream(destinationPath);
 
   const res = await drive.files.get(
@@ -148,6 +200,33 @@ async function downloadAndReplaceDatabase(fileId, destinationPath) {
       .pipe(dest);
   });
 };//substituir arquivo .db antigo por novo
+
+async function CheckDatabase(req, res){
+ console.log("Verificando banco de dados...")
+  try {
+   const dataBase = await knex('users');
+   console.log('Banco de dados estável')
+  }catch (error) {
+   if(error.message.includes('SQLITE_ERROR: no such table')){
+    console.log("Banco de dados corrompido!")
+    console.log("Iniciando o processo de substituição...");
+
+    try {
+     const folderId = "1YotlwR6sfgkJ0HofUpKv4j42UuQwT97c"; 
+     const localPath = path.resolve(__dirname, "database");
+
+     const fileId = await getLatestBackupFileId(folderId);
+     await downloadAndReplaceDatabase(fileId, localPath);
+
+     console.log("Arquivo database.db restaurado com sucesso.");
+    } catch (restoreError) {
+     console.error("Erro ao restaurar o backup:", restoreError);
+    }
+   }
+  }
+};// checar database
+
+CheckDatabase();//verifica integridade do banco de dados ao iniciar o servidor
 
 app.get("/replace", async (req, res)=> {
   console.log("Iniciando o processo de substituição...");
@@ -171,34 +250,6 @@ app.get('/health', (req, res) => {
   console.log('Executando health check');
    res.status(200).json({ status: 'online' });
 });//health check
-
-app.post('/push-token', async (req, res) => {
-  try {
-    const { token, name } = req.body;
-    console.log('Executando push-token');
-
-    if (!token) {
-      throw new AppError('Token inválido');
-    }
-
-    // Verifica se o token já existe no banco
-    const TokenExists = await knex('token')
-                             .where({ token })
-                             .first();
-
-    if (TokenExists) {
-      return res.status(200).json({ message: 'Token já cadastrado' });
-    }
-
-    // Insere o token no banco
-    await knex('token').insert({ token, name });
-
-    return res.status(201).json({ message: 'Token salvo com sucesso' });
-  } catch (error) {
-    console.error('Erro ao salvar o token:', error);
-    return res.status(500).json({ error: 'Erro interno no servidor' });
-  }
-});//receber token de dispositivo para notificações
 
 app.get('/backup', async (req, res) => {
   console.log('Fazendo backup do banco de dados...');
@@ -252,7 +303,7 @@ app.get('/backup', async (req, res) => {
       <h2>Backup do Banco de Dados Executado com Sucesso!</h2>
       <p><strong>Data do Backup:</strong> ${formattedDate}</p>
       <p>Links para acesso ao backup:<br/>
-      <a href="https://drive.google.com/drive/foldersprocess.env.BACKUP_FOLDER_IDhl=pt-br">
+      <a href="https://drive.google.com/drive/folders/${process.env.BACKUP_FOLDER_ID}?hl=pt-br">
         Clique aqui para acessar o backup
       </a></p>
       <br/>

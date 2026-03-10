@@ -69,7 +69,7 @@ class RecipesController {
       console.error(error)
       throw new AppError('Erro ao adicionar receita', 500);
     };
-  };
+  };//criar receita
 
   async update(request, response) {
      const { 
@@ -134,7 +134,7 @@ class RecipesController {
         console.error(error)
         throw new AppError(`Erro ao atualizar prato: ${error.message}`, 500);
      };
-  };
+  };//atualizar receita
 
   async index(request, response) {
     const { index, category, all } = request.body;
@@ -163,14 +163,14 @@ class RecipesController {
         if (!results.length) return response.status(404).json({message: `Nenhum resultado para ${index}`});
 
         return response.json(results)
-     }
+     }//buscar receita com uma categoria específica  
 
      const results = await knex('recipes').where({ category });
 
      if (!results.length) return response.status(404).json({message: `Nenhum resultado para ${index}`});
 
      return response.status(200).json({ results });
-    };
+    };//buscar receita pelo index e categoria, ou buscar receita somente pela categoria
 
     const newRecipes = await knex('recipes')
                             .orderBy("created_at", "desc")
@@ -199,7 +199,14 @@ class RecipesController {
      Sobremesa, Lanche, Refeicao, Cafe, Bolo, Bebida, Fruta, Pao, Outro     
     })
 
-  };
+  };/*
+    Se all = 'true', retorna TODAS as receitas em ordem de criação;
+    Se index = 'receita' e category = undefined, retorna resultado da busca pelo index;
+    Se index = 'receita' e category = 'categoria';
+    Se index = undefined, all = undefined, category = undefined, retorna receitas novas, receitas favoritas
+    e receitas por categoria;
+  
+  */
 
   async show(request, response) {
     const { id } = request.params;
@@ -213,7 +220,7 @@ class RecipesController {
     const User = await knex('users').where({ id: Recipe.user_id }).first();
     
     return response.json({Recipe, User})
-  };
+  };//mostra uma receita especifica
 
   async delete(request, response) {
     const { id } = request.params;
@@ -236,7 +243,7 @@ class RecipesController {
      console.error(error)
      throw new AppError('Erro ao apagar receita', 500);
     }
-  };
-}
+  };//deleta uma receita
+};
 
 module.exports = RecipesController;
