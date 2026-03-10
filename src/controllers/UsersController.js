@@ -34,7 +34,7 @@ class UsersController {
 
       return response.status(202).json({ User: UserExist });
  
-  };
+  };//login com nome ou email, sem google/facebook api
 
   async localCreate(request, response) {
     const { name, email, password, level, check } = request.body;
@@ -67,7 +67,7 @@ class UsersController {
      return response.json({ message: 'Usuário criado com sucesso!'});
     };
 
-  };
+  };//criação de conta com email, sem google/facebook api
 
   async login(request, response) {
     const { id_token, provider } = request.body;
@@ -114,7 +114,7 @@ class UsersController {
        throw new AppError(`Erro ao verificar usuário: ${error.message}`, 500);
       };
     }
-  };
+  };//login com google ou facebook api
 
   async create(request, response) {
      const { id_token, provider, password, level } = request.body;
@@ -276,7 +276,7 @@ class UsersController {
        throw new AppError(`Erro ao verificar usuário: ${error.message}`, 500);
       };
     }
-  };
+  };//criação de conta com google ou facebook api
 
   async update(request, response) {
     const { name, level, img } = request.body;
@@ -299,7 +299,7 @@ class UsersController {
           });
 
     return response.status(201).json();
-  };
+  };//atualização de nome, imagem ou level de um usuário
 
   async getinfo(request, response) {
    const { id } = request.params;
@@ -311,7 +311,7 @@ class UsersController {
    if (!User) return response.json([])
 
    return response.json({ User: User, Recipes: Recipes, Favorites: Favorites});
-  };
+  };//pega informações do usuarios, favoritas e receitas criadas
 
   async forgotPassword(request, response) {
   const { email } = request.body;
@@ -423,7 +423,7 @@ letter-spacing: 5px;">
      throw new AppError(`Erro ao enviar código: ${error.message}`, 500)
    }
 
-  };
+  };//solicitação de codigo para mudar senha
 
   async resetPassword(request, response){
     const { code, newPassword, check, email } = request.body;
@@ -502,7 +502,7 @@ letter-spacing: 5px;">
   }
     }
 
-  };
+  };//resetar senha com codigo recebido
 };
 
 module.exports = UsersController;

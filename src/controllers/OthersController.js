@@ -23,7 +23,7 @@ class OthersController {
     console.error(error)
     throw new AppError('Erro ao favoritar/remover receita', 500);
    };
-  };
+  };//favoritar ou remover receita dos favoritos
 
   async addNotification(request, response) {
     const { token, user_id } = request.body;
@@ -41,7 +41,7 @@ class OthersController {
       console.error(error)
       throw new AppError('Erro ao adicionar dispositivo', 500);
     }
-  };
+  };//registrar token de dispositivo de um usuário
 
   async toggleNotification(request, response) {
    const { user_id, token, permite } = request.body;
@@ -58,7 +58,7 @@ class OthersController {
     console.error(error)
     throw new AppError('Erro ao favoritar/remover receita', 500);
    };
-  };
+  };//alterar permissão do usuario em receber notificação ou não
 };
 
 module.exports = OthersController;
