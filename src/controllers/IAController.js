@@ -22,16 +22,16 @@ async function getFoodImage(foodName) {
       return null;
     }
   } catch (err) {
-    console.error("Erro ao buscar imagem:", err);
-    return null;
+  console.error("Erro ao buscar imagem:", err.response?.data?.error || err.message);
+  return null;
   }
 };//api para buscar imagem do google e retornar a primeira
 
 class IAController {
- async CreateNewRecipe(request, response) {
+ async CreateNewRecipe(req, res) {
     const IARecipes = await knex('recipes')
                            .where({ IA_made: 'true'})
-                           .returning('name');
+                           .select('name')
 
     const Prompt = `
 Você é uma IA que gera receitas para meu app. Gere uma nova receita, respeitando esta estrutura de JSON válida (responda apenas com o JSON, sem explicações):
@@ -50,13 +50,17 @@ Você é uma IA que gera receitas para meu app. Gere uma nova receita, respeitan
 Ingredientes devem incluir quantidade (ex: "3 ovos") e ser separados por vírgula. Utensílios também separados por vírgula. 
 Tempo deve mostrar tempo minimo e maximo seguido da sigla min (ex: 140-160min). Passos  devem ser separados por |.
 
-${IARecipes ? ` a receita nao pode ser nenhuma das citadas a seguir ${IARecipes.map(r => r.name).join(', ')} ` : null}
-    `
+${IARecipes.length > 0 ? `a receita não pode ser nenhuma das citadas a seguir: ${IARecipes.map(r => r.name).join(', ')}` : ''}`
 
  try {
     const response = await axios.post(
-  "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct",
-  { inputs: Prompt },
+  "https://router.huggingface.co/v1/chat/completions",
+  {
+    model: "meta-llama/Llama-3.1-8B-Instruct",
+    messages: [
+      { role: "user", content: Prompt }
+    ]
+  },
   {
     headers: {
       Authorization: `Bearer ${process.env.HUGGING_READ_TOKEN}`,
@@ -65,11 +69,11 @@ ${IARecipes ? ` a receita nao pode ser nenhuma das citadas a seguir ${IARecipes.
   }
     );
 
-    const GeneratedRecipe = response.data[0]?.generated_text;
+    const GeneratedRecipe = response.data.choices[0]?.message?.content;
     const GeneratedRecipeObj = JSON.parse(GeneratedRecipe);
 
     const imageURL = await getFoodImage(GeneratedRecipeObj.name)
-    const IAid = await knex('users').where({ email: 'cookly007IA@gmail.com' }).first();
+    //const IAid = await knex('users').where({ email: 'cookly007IA@gmail.com' }).first();
 
     await knex('recipes').insert({
       img: imageURL,
@@ -81,14 +85,14 @@ ${IARecipes ? ` a receita nao pode ser nenhuma das citadas a seguir ${IARecipes.
       utensils: GeneratedRecipeObj.utensils, 
       time: GeneratedRecipeObj.time, 
       steps: GeneratedRecipeObj.steps,
-      user_id: IAid.id,
+      user_id: 0,
       IA_made: 'true'
     })
 
-    return response.status(200).json({ message: 'receita gerada' });
+    return res.status(200).json({ message: 'receita gerada' });
 
  } catch(error) {
-    console.error(error)
+    console.error(error.response.data || error)
     throw new AppError('Erro ao gerar receita', 500);
  }
 
