@@ -7,7 +7,7 @@ const recipesRoutes = require('./recipes.routes');
 
 const routes = Router();
 
-routes.use('/IA', iaRoutes)
+routes.use('/ia', iaRoutes)
 routes.use('/user', usersRoutes);
 routes.use('/other', othersRoutes);
 routes.use('/recipe', recipesRoutes);

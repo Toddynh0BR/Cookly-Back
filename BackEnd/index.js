@@ -34,8 +34,30 @@ app.use(( error, request, response, next)=>{
  })
 })//tratamento de erros
 
-const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`serve is running on port ${PORT}`));
+async function start() {
+    try {
+      console.log("Executando migrations...");
+      await knex.migrate.latest();
+      console.log("Migrations concluídas.");
+
+      console.log("Executando seeds...");
+      await knex.seed.run();
+
+      console.log("Seeds concluídas.");
+      
+      const PORT = process.env.PORT;
+      app.listen(PORT, () => 
+        console.log(`serve is running on port ${PORT}`)
+      );
+
+      app.use(routes);
+    } catch (error) {
+      console.error("Erro ao iniciar servidor:", error);
+      process.exit(1);
+    }
+};
+
+start();
 
 //executar backup de banco de dados
 const cron = require('node-cron');

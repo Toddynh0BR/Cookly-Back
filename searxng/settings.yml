@@ -1,0 +1,22 @@
+use_default_settings: true
+
+search:
+  formats:
+    - json
+
+server:
+  secret_key: "0123456789"
+
+engines:
+
+  - name: brave
+    engine: brave
+    disabled: false
+
+  - name: duckduckgo images
+    engine: duckduckgo_images
+    disabled: false
+
+  - name: bing images
+    engine: bing_images
+    disabled: false
