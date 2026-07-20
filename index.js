@@ -36,7 +36,6 @@ app.use(( error, request, response, next)=>{
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`serve is running on port ${PORT}`));
-app.use(routes);
 
 //executar backup de banco de dados
 const cron = require('node-cron');

@@ -38,13 +38,13 @@ Você é uma IA que gera receitas para meu app. Gere uma nova receita, respeitan
 
 {
   "name": "string",
-  "ingredients": "string, string, string",
+  "ingredients": "["string", "string", "string"]",
   "description": "string",
   "difficult": "easy" | "medium" | "hard",
   "category": "sobremesa" | "lanche" | "refeicao" | "cafe" | "bolo" | "bebida" | "fruta" | "pao" | "outro",
-  "utensils": "string, string, string",
+  "utensils": "["string", "string", "string"]",
   "time": "min-max em minutos",
-  "steps": "1. passo | 2. passo | 3. passo"
+  "steps": "["step1", "step2", "step3"]"
 }
 
 Ingredientes devem incluir quantidade (ex: "3 ovos") e ser separados por vírgula. Utensílios também separados por vírgula. 
