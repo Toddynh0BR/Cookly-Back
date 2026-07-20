@@ -4,7 +4,7 @@ module.exports = {
  development: {
     client: 'pg',
     connection: {
-      host: '127.0.0.1',
+      host: 'host.docker.internal',
       port: 5432,
       user: process.env.DB_USER || 'cookly',
       password: process.env.DB_PASSWORD || '12345',

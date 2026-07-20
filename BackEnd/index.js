@@ -173,7 +173,6 @@ const { google } = require("googleapis");
 const fs = require("fs-extra");
 const path = require("path");
 
-
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.CREDENTIALS_PATH),
   scopes: ["https://www.googleapis.com/auth/drive.readonly"],
@@ -181,164 +180,10 @@ const auth = new google.auth.GoogleAuth({
 
 const drive = google.drive({ version: "v3", auth });//conexão com o google drive
 
-async function getLatestBackupFileId(folderId) {
-  console.log('Buscando backup de database')
-  const res = await drive.files.list({
-    q: `'${folderId}' in parents`,
-    orderBy: "modifiedTime desc",
-    pageSize: 1,
-    fields: "files(id, name, modifiedTime)",
-  });
-
-  const files = res.data.files;
-  if (files.length === 0) {
-    throw new Error("Nenhum arquivo encontrado na pasta de backup.");
-  }
-
-  console.log('Arquivo pego:', files[0].id);
-  return files[0].id;
-};//buscar arquivo .db mais recente mais recente
-
-async function downloadAndReplaceDatabase(fileId, destinationPath) {
-  console.log('Iniciando substituição:', fileId, destinationPath);
-  const dest = fs.createWriteStream(destinationPath);
-
-  const res = await drive.files.get(
-    { fileId, alt: "media" },
-    { responseType: "stream" }
-  );
-
-  await new Promise((resolve, reject) => {
-    res.data
-      .on("end", () => {
-        console.log("Download concluído.");
-        resolve();
-      })
-      .on("error", (err) => {
-        console.error("Erro no download.", err);
-        reject(err);
-      })
-      .pipe(dest);
-  });
-};//substituir arquivo .db antigo por novo
-
-async function CheckDatabase(req, res){
- console.log("Verificando banco de dados...")
-  try {
-   const dataBase = await knex('users');
-   console.log('Banco de dados estável')
-  }catch (error) {
-   if(error.message.includes('SQLITE_ERROR: no such table')){
-    console.log("Banco de dados corrompido!")
-    console.log("Iniciando o processo de substituição...");
-
-    try {
-     const folderId = "1YotlwR6sfgkJ0HofUpKv4j42UuQwT97c"; 
-     const localPath = path.resolve(__dirname, "database");
-
-     const fileId = await getLatestBackupFileId(folderId);
-     await downloadAndReplaceDatabase(fileId, localPath);
-
-     console.log("Arquivo database.db restaurado com sucesso.");
-    } catch (restoreError) {
-     console.error("Erro ao restaurar o backup:", restoreError);
-    }
-   }
-  }
-};// checar database
-
-CheckDatabase();//verifica integridade do banco de dados ao iniciar o servidor
-
-app.get("/replace", async (req, res)=> {
-  console.log("Iniciando o processo de substituição...");
-
-  try {
-    const folderId = process.env.BACKUP_FOLDER_ID; 
-    const localPath = path.resolve(__dirname, "database", "database.db");
-
-    const fileId = await getLatestBackupFileId(folderId);
-    await downloadAndReplaceDatabase(fileId, localPath);
-
-    console.log("Arquivo database.db restaurado com sucesso.");
-    return res.status(200).json({ message: "Arquivo database.db restaurado com sucesso." });
-  } catch (error) {
-    console.error("Erro ao restaurar o backup:", error);
-    throw new AppError("Erro ao substituir banco de dados", 500);
-  }
-});//Rota para substituir banco de dados
-
 app.get('/health', (req, res) => {
   console.log('Executando health check');
    res.status(200).json({ status: 'online' });
 });//health check
-
-app.get('/backup', async (req, res) => {
-  console.log('Fazendo backup do banco de dados...');
-
-  try {
-    exec('node backupGoogleDrive.js', async (error, stdout, stderr) => {
-      if (error) {
-        console.error('Erro ao executar backup:', error.message);
-        await sendMail(
-         'galaxyplay41@gmail.com',
-        'Erro ao fazer backup',
-        '',
-         `Erro ao fazer backup do banco de dados:\n${error.message}`,
-        );
-        return;
-      }
-
-      const isCriticalError = stderr && !stderr.includes('DeprecationWarning');
-
-      if (isCriticalError) {
-        console.error('Erro no backup:', stderr);
-        await sendMail(
-        'galaxyplay41@gmail.com',
-        'Erro ao fazer backup',
-        '',
-        `Erro ao fazer backup do banco de dados:\n${stderr}`,
-        );
-        return;
-      }
-
-      console.log(stdout);
-      const date = new Date();
-      date.setDate(date.getDate() - 1);
-
-      // Formata para o padrão brasileiro (DD/MM/YYYY HH:mm)
-      const formattedDate = date.toLocaleString('pt-BR', {
-       timeZone: 'America/Sao_Paulo',
-       day: '2-digit',
-       month: '2-digit',
-       year: 'numeric',
-       hour: '2-digit',
-       minute: '2-digit'
-     });
-
-      await sendMail(
-       'galaxyplay41@gmail.com',
-       'Backup Realizado',
-       '',
-       `
-    <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-      <h2>Backup do Banco de Dados Executado com Sucesso!</h2>
-      <p><strong>Data do Backup:</strong> ${formattedDate}</p>
-      <p>Links para acesso ao backup:<br/>
-      <a href="https://drive.google.com/drive/folders/${process.env.BACKUP_FOLDER_ID}?hl=pt-br">
-        Clique aqui para acessar o backup
-      </a></p>
-      <br/>
-    </div>
-  `,
-        );
-
-      return res.status(200).json({ message: 'Backup realizado com sucesso' });
-    });
-  } catch (error) {
-    console.error('Erro inesperado:', error);
-    return res.status(500).json({ error: 'Erro ao realizar backup' });
-  }
-});//backup de banco de dados
 
 app.post("/ping", (req, res) => {
   console.log("Keep-alive recebido:", new Date().toISOString());
