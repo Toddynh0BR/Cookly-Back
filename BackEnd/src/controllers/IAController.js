@@ -4,28 +4,35 @@ const dotenv = require("dotenv");//variaveis de ambiente
 const axios = require('axios');//conexão http
 
 async function getFoodImage(foodName) {
-  const key = process.env.GOOGLE_API_KEY;
-  const cx = process.env.SEARCH_ENGINE_ID;
-
-  const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(
-    foodName
-  )}&cx=${cx}&searchType=image&num=1&key=${key}`;
-
   try {
-    const res = await axios.get(url);
-    const data = res.data;
+   const response = await axios.get("http://searxng:8080/search", {
+      params: {
+         q: foodName,
+         categories: "images",
+         format: "json"
+      }
+   });
 
-    if (data.items && data.items.length > 0) {
-      return data.items[0].link; // URL da imagem
-    } else {
-      console.warn(`Nenhuma imagem encontrada para: ${foodName}`);
-      return null;
-    }
-  } catch (err) {
-  console.error("Erro ao buscar imagem:", err.response?.data?.error || err.message);
-  return null;
+   const results = response.data.results;
+
+   if (!results || results.length === 0) {
+    console.warn(`Nenhuma imagem encontrada para ${foodName}`);
+    return null;
+   }
+
+   return (
+    results[0].img_src ||
+    results[0].thumbnail ||
+    results[0].url ||
+    null
+   );
+
+  } catch (error) {
+    console.error(error.message);
+    return null;
   }
-};//api para buscar imagem do google e retornar a primeira
+
+}//api para buscar imagem do google e retornar a primeira
 
 class IAController {
  async CreateNewRecipe(req, res) {
